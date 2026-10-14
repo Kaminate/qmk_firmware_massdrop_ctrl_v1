@@ -4,7 +4,7 @@ How to use (Windows 11):
 2) install QMK MSYS from https://msys.qmk.fm/
 3) from the QMK MSYS app, cd to wherever you cloned qmk_firmware_massdrop_ctrl_v1 to
 4) qmk compile -kb massdrop/ctrl -km reactive
-5) install the Drop Keyboard Configurator from <the internet idk>
+5) install the Drop Keyboard Configurator from... the internet idk
 6) flash the keyboard from the Drop Keyboard Configurator by going to Flash Firmware --> DROP CTRL V1 --> CHOOSE A FILE... --> qmk_firmware_massdrop_ctrl_v1/massdrop_ctrl_reactive.bin
 
 note:
