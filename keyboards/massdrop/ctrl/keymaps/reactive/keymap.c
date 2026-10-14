@@ -1,5 +1,32 @@
 #include QMK_KEYBOARD_H
 
+
+uint8_t ice_target_hue[RGB_MATRIX_LED_COUNT] = {0};
+static uint32_t ice_random_state = 0x12345678u;
+
+static void ice_choose_color(keyrecord_t *record) {
+    if (!record->event.pressed) {
+        return;
+    }
+
+    uint8_t led = g_led_config.matrix_co[record->event.key.row]
+                                          [record->event.key.col];
+
+    if (led == NO_LED || led >= RGB_MATRIX_LED_COUNT) {
+        return;
+    }
+
+    ice_random_state ^= timer_read32();
+    ice_random_state ^= ice_random_state << 13;
+    ice_random_state ^= ice_random_state >> 17;
+    ice_random_state ^= ice_random_state << 5;
+
+    // Cyan through blue, with a small blue-violet edge.
+    ice_target_hue[led] = 128 + (ice_random_state % 53);
+}
+
+
+
 enum ctrl_keycodes {
     U_T_AUTO = SAFE_RANGE, //USB Extra Port Toggle Auto Detect / Always Active
     U_T_AGCR,              //USB Toggle Automatic GCR control
@@ -44,6 +71,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #define MODS_ALT    (get_mods() & MOD_MASK_ALT)
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    ice_choose_color(record);
+
     static uint32_t key_timer;
 
     switch (keycode) {
@@ -120,7 +149,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void keyboard_post_init_user(void) {
     rgb_matrix_enable_noeeprom();
     rgb_matrix_set_flags(LED_FLAG_KEYLIGHT | LED_FLAG_MODIFIER | LED_FLAG_INDICATOR);
-    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_REACTIVE_SIMPLE);
-    rgb_matrix_sethsv_noeeprom(0, 0, 160);
+
+    rgb_matrix_mode_noeeprom(RGB_MATRIX_CUSTOM_ICE_TYPING);
+    rgb_matrix_sethsv_noeeprom(128, 40, 160);
+
+    //rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_REACTIVE_SIMPLE);
+    //rgb_matrix_sethsv_noeeprom(0, 0, 160);
+
     rgb_matrix_set_speed_noeeprom(128);
 }
